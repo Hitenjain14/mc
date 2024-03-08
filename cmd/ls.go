@@ -214,6 +214,7 @@ type doListOptions struct {
 	withOlderVersions bool
 	listZip           bool
 	filter            string
+	olderThan         string
 }
 
 // doList - list all entities inside a folder.
@@ -252,9 +253,11 @@ func doList(ctx context.Context, clnt Client, o doListOptions) error {
 			perObjectVersions = []*ClientContent{}
 		}
 
-		perObjectVersions = append(perObjectVersions, content)
-		totalSize += content.Size
-		totalObjects++
+		if o.olderThan == "" || isOlder(content.Time, o.olderThan) {
+			perObjectVersions = append(perObjectVersions, content)
+			totalSize += content.Size
+			totalObjects++
+		}
 	}
 
 	printObjectVersions(clnt.GetURL(), perObjectVersions, o.withOlderVersions)

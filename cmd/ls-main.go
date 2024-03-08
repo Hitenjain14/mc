@@ -60,6 +60,10 @@ var (
 			Name:  "zip",
 			Usage: "list files inside zip archive (MinIO servers only)",
 		},
+		cli.StringFlag{
+			Name:  "older-than",
+			Usage: "list all object objects older than value in duration string (e.g. 7d10h31s)",
+		},
 	}
 )
 
@@ -173,6 +177,7 @@ func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
 	withOlderVersions := cliCtx.Bool("versions")
 	isSummary := cliCtx.Bool("summarize")
 	listZip := cliCtx.Bool("zip")
+	olderThan := cliCtx.String("older-than")
 
 	timeRef := parseRewindFlag(cliCtx.String("rewind"))
 
@@ -188,6 +193,7 @@ func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
 		withOlderVersions: withOlderVersions,
 		listZip:           listZip,
 		filter:            storageClasss,
+		olderThan:         olderThan,
 	}
 	return args, opts
 }
