@@ -216,6 +216,7 @@ type ClientContent struct {
 	IsDeleteMarker    bool
 	IsLatest          bool
 	ReplicationStatus string
+	ContentType       string
 
 	Restore *minio.RestoreInfo
 

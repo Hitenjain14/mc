@@ -44,6 +44,8 @@ const (
 	differInAASourceMTime            // differs in active-active source modtime
 )
 
+const lz4MimeType = "application/x-lz4"
+
 func (d differType) String() string {
 	switch d {
 	case differInNone:
@@ -315,7 +317,7 @@ func differenceInternal(sourceURL string, srcCh <-chan *ClientContent, targetURL
 				}
 				continue
 			}
-			if srcSize != tgtSize {
+			if srcSize != tgtSize && tgtCtnt.ContentType != lz4MimeType {
 				// Regular files differing in size.
 				diffCh <- diffMessage{
 					FirstURL:      srcCtnt.URL.String(),

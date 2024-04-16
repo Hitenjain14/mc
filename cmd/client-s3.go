@@ -2311,6 +2311,10 @@ func (c *S3Client) objectInfo2ClientContent(bucket string, entry minio.ObjectInf
 
 	content.ReplicationStatus = entry.ReplicationStatus
 	for k, v := range entry.UserMetadata {
+		if k == "X-Minio-Compression" || k == "compression" {
+			entry.ContentType = v
+			continue
+		}
 		content.UserMetadata[k] = v
 	}
 	for k := range entry.Metadata {
@@ -2339,6 +2343,7 @@ func (c *S3Client) objectInfo2ClientContent(bucket string, entry minio.ObjectInf
 	} else {
 		content.Type = os.FileMode(0o664)
 	}
+	content.ContentType = entry.ContentType
 
 	return content
 }
