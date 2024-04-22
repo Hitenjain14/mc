@@ -141,6 +141,10 @@ var (
 			Name:  "skip-errors",
 			Usage: "skip any errors when mirroring",
 		},
+		cli.BoolFlag{
+			Name:  "uncompress",
+			Usage: "uncompress objects before mirroring",
+		},
 	}
 )
 
@@ -964,7 +968,7 @@ func runMirror(ctx context.Context, srcURL, dstURL string, cli *cli.Context, enc
 	isRemove := cli.Bool("remove")
 
 	// preserve is also expected to be overwritten if necessary
-	isMetadata := cli.Bool("a") || isWatch || len(userMetadata) > 0
+	isMetadata := cli.Bool("a") || isWatch || len(userMetadata) > 0 || cli.Bool("uncompress")
 	isFake := cli.Bool("fake") || cli.Bool("dry-run")
 
 	mopts := mirrorOptions{

@@ -38,6 +38,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/encrypt"
 	"github.com/minio/pkg/v2/env"
+	"github.com/pierrec/lz4/v4"
 )
 
 // decode if the key is encoded key and returns the key
@@ -550,9 +551,20 @@ func uploadSourceToTargetURL(ctx context.Context, uploadOpts uploadSourceToTarge
 			multipartThreads: uint(multipartThreads),
 		}
 
-		if isReadAt(reader) || length == 0 {
-			_, err = putTargetStream(ctx, targetAlias, targetURL.String(), mode, until,
-				legalHold, reader, length, uploadOpts.progress, putOpts)
+		var toUncompress bool
+		if uploadOpts.urls.SourceContent.ContentType == lz4MimeType {
+			toUncompress = true
+			length = -1
+		}
+
+		if isReadAt(reader) || length <= 0 {
+			if toUncompress {
+				_, err = putTargetStream(ctx, targetAlias, targetURL.String(), mode, until,
+					legalHold, lz4.NewReader(reader), length, uploadOpts.progress, putOpts)
+			} else {
+				_, err = putTargetStream(ctx, targetAlias, targetURL.String(), mode, until,
+					legalHold, reader, length, uploadOpts.progress, putOpts)
+			}
 		} else {
 			_, err = putTargetStream(ctx, targetAlias, targetURL.String(), mode, until,
 				legalHold, io.LimitReader(reader, length), length, uploadOpts.progress, putOpts)
